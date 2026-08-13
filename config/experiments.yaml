@@ -1,0 +1,37 @@
+# Batch experiment definitions used by experiments/runner.py and benchmark.py.
+# Each entry is a SystemParams / ControllerParams / PerturbationSpec dict.
+experiments:
+  - name: n1_pid_5deg
+    system:
+      N: 1
+      initial_condition: random
+      theta_max_deg: 5.0
+      sim_time: 20.0
+    controller:
+      type: pid
+      kp: 80.0
+      ki: 4.0
+      kd: 40.0
+      kp_cart: 3.0
+      kd_cart: 8.0
+    perturbations: []
+
+  - name: n3_lqr_5deg
+    system:
+      N: 3
+      initial_condition: random
+      theta_max_deg: 5.0
+      sim_time: 20.0
+    controller:
+      type: lqr
+    perturbations: []
+
+  - name: n10_lqr_2deg
+    system:
+      N: 10
+      initial_condition: random
+      theta_max_deg: 2.0
+      sim_time: 20.0
+    controller:
+      type: lqr
+    perturbations: []
