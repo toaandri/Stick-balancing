@@ -41,11 +41,14 @@ class LQRController(BaseController):
 
     @staticmethod
     def _build_q(cparams: ControllerParams, N: int) -> np.ndarray:
+        n = 2 * N + 2
         if cparams.Q is not None:
             Q = np.asarray(cparams.Q, dtype=float)
-            if Q.shape != (2 * N + 2, 2 * N + 2):
-                raise ValueError(f"Q must have shape {(2 * N + 2, 2 * N + 2)}")
-            return Q
+            if Q.shape == (n, n):
+                return Q
+            if Q.shape == (n,):  # flat diagonal weights
+                return np.diag(Q)
+            raise ValueError(f"Q must have shape ({n}, {n}) or ({n},)")
         return build_lqr_Q(
             N,
             q_pos=cparams.q_pos,

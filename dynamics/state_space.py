@@ -55,8 +55,8 @@ def build_lqr_Q(
     Q = np.zeros((n, n))
     Q[0, 0] = q_pos
     Q[1, 1] = q_vel
-    Q[2::2, 2::2] = q_angle
-    Q[3::2, 3::2] = q_angle_vel
+    Q[2::2, 2::2] = np.eye(N) * q_angle
+    Q[3::2, 3::2] = np.eye(N) * q_angle_vel
     return Q
 
 
