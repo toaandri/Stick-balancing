@@ -1,7 +1,8 @@
-"""Tests for MJCF model generation (Phase 0)."""
+"""Tests for MJCF model generation (Phase 0, Task 1.1 general-N)."""
 
 import numpy as np
 import mujoco
+import pytest
 
 from config import load_defaults
 from simulation.mujoco_model import generate_mjcf, compile_model
@@ -71,3 +72,49 @@ def test_angle_sign_positive_toward_positive_x():
     tip = data.site_xpos[1]
     assert tip[0] > 0.0  # tilted toward +x
     assert tip[2] > 0.0  # still above the base
+
+
+@pytest.mark.parametrize("N", [2, 3, 10])
+def test_generate_n_general_structure(N):
+    params = load_defaults()
+    params.N = N
+    model, data = compile_model(N, params)
+    assert model.nq == N + 1
+    assert model.nv == N + 1
+    assert model.nu == 1
+    assert model.nbody == N + 2
+    assert model.njnt == N + 1
+    assert data.qpos.shape[0] == N + 1
+    assert data.qvel.shape[0] == N + 1
+    joint_names = [
+        mujoco.mj_id2name(model, mujoco.mjtObj.mjOBJ_JOINT, i)
+        for i in range(model.njnt)
+    ]
+    assert joint_names == ["cart_slide"] + [f"hinge_{i}" for i in range(1, N + 1)]
+    body_names = [
+        mujoco.mj_id2name(model, mujoco.mjtObj.mjOBJ_BODY, i)
+        for i in range(model.nbody)
+    ]
+    assert body_names == ["world", "cart"] + [f"segment_{i}" for i in range(1, N + 1)]
+
+
+@pytest.mark.parametrize("N", [2, 3, 10])
+def test_vertical_equilibrium_general(N):
+    params = load_defaults()
+    params.N = N
+    model, data = compile_model(N, params)
+    assert np.allclose(data.qpos, 0.0)  # cart at origin, chain perfectly vertical
+    mujoco.mj_forward(model, data)
+    # Exact unstable equilibrium: zero acceleration with zero velocity.
+    assert np.allclose(data.qacc, 0.0, atol=1e-6)
+
+
+@pytest.mark.parametrize("N", [2, 3, 10])
+def test_chain_vertical_geometry(N):
+    params = load_defaults()
+    params.N = N
+    model, data = compile_model(N, params)
+    mujoco.mj_forward(model, data)
+    tip = data.site_xpos[model.nsite - 1]
+    assert np.allclose(tip[:2], 0.0, atol=1e-9)
+    assert np.allclose(tip[2], params.cart_height + N * params.segment_length, atol=1e-9)
