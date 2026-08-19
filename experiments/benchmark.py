@@ -15,12 +15,12 @@ METRIC_COLUMNS = [
     "name",
     "N",
     "success",
-    "settle_s",
+    "settling_time",
     "rmse_theta",
     "max_theta_deg",
     "max_x",
     "max_u",
-    "effort",
+    "control_effort",
     "cost",
 ]
 

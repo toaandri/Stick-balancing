@@ -100,7 +100,7 @@ class ControllerParams:
     q_angle_vel: float = 1.0
 
     # MPC (optional)
-    mpc_horizon: int = 20
+    mpc_horizon: int = 200
     mpc_dt: float = 0.02
 
     def validate(self) -> None:

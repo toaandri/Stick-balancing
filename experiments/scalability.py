@@ -45,6 +45,7 @@ def scalability_rows(
         n_steps = max(1, int(p.sim_time / p.ctrl_dt))
         rows.append(
             {
+                "name": cparams.type,
                 "N": N,
                 "run_ms": round(elapsed_ms, 3),
                 "step_ms": round(elapsed_ms / n_steps, 4),

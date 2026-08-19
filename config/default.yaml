@@ -48,5 +48,5 @@ controller:
   R: 0.1
   Q: null
 
-  mpc_horizon: 20
+  mpc_horizon: 200
   mpc_dt: 0.02
