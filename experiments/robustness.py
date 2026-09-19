@@ -21,10 +21,8 @@ from experiments.runner import run_experiment
 
 def _row(sweep_key: str, sweep_value, res, cparams: ControllerParams, N: int) -> dict:
     dt = float(res.t[1] - res.t[0]) if len(res.t) > 1 else 0.01
-    if cparams.type == "lqr":
-        Q = build_lqr_Q(N, cparams.q_pos, cparams.q_vel, cparams.q_angle, cparams.q_angle_vel)
-    else:
-        Q = np.eye(res.states.shape[0])
+    from controllers.lqr import LQRController
+    Q = LQRController._build_q(cparams, N)
     m = summarize(res, dt, Q, np.array([[cparams.R]]))
     row = {sweep_key: sweep_value, "N": N}
     row.update(m)
@@ -76,6 +74,8 @@ def sweep_noise(
     seeds: Sequence[int] = (0, 1, 2),
 ) -> list[dict]:
     """Stabilization success vs measurement noise, averaged over seeds."""
+    if not len(seeds):
+        raise ValueError('at least one seed is required')
     rows = []
     for sigma in noise_values:
         p = copy.copy(params)
@@ -113,4 +113,17 @@ def sweep_delay(
         p.command_delay_steps = delay
         res = run_experiment(p, cparams, theta_deg=[theta_deg] + [0.0] * (N - 1), seed=seed)
         rows.append(_row("delay_steps", delay, res, cparams, N))
+    return rows
+
+
+def sweep_parameter(params, cparams, parameter, values, theta_deg=2.0, seed=42):
+    """Change the plant while keeping the nominal controller design fixed."""
+    from dataclasses import replace
+    if parameter not in ('cart_mass', 'segment_mass', 'segment_length', 'joint_damping', 'cart_max_force'):
+        raise ValueError('unsupported robustness parameter')
+    rows = []
+    for value in values:
+        plant = replace(params, **{parameter: value})
+        res = run_experiment(plant, cparams, theta_deg=[theta_deg] + [0.0] * (plant.N-1), seed=seed, design_params=params)
+        rows.append(_row(parameter, value, res, cparams, plant.N))
     return rows

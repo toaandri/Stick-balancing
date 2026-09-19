@@ -2,11 +2,12 @@
 
 Finds the largest initial angle (degrees) from which a controller still
 stabilizes the chain, using binary search on the stabilization outcome
-(success metric). Success is a deterministic function of the initial angle for
-a fixed seed, so bisection converges reliably.
+(success metric). This estimates a local transition only: nonlinear success
+need not be monotone in angle. Check a grid first and verify the bracket.
 """
 
 from __future__ import annotations
+import math
 
 from config import ControllerParams, SystemParams
 from experiments.runner import run_experiment
@@ -42,8 +43,10 @@ def bisect_angle(
         (critical_deg, iterations, last_angle_tested). `critical_deg` is the
         largest angle at which the run still succeeded.
     """
+    if not all(math.isfinite(v) for v in (lo, hi, tol)) or not 0 <= lo < hi or tol <= 0 or not isinstance(max_iter, int) or max_iter < 1:
+        raise ValueError('require 0 <= lo < hi, positive tol and max_iter')
     if not _stabilizes(params, cparams, lo, seed):
-        raise ValueError(f"lo={lo} deg does not stabilize; increase lo")
+        raise ValueError(f"lo={lo} deg does not stabilize; decrease lo or extend duration")
     if _stabilizes(params, cparams, hi, seed):
         raise ValueError(f"hi={hi} deg still stabilizes; increase hi")
 

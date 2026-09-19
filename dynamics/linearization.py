@@ -74,6 +74,7 @@ def linearize_around_vertical(recursive_model: Any) -> tuple[np.ndarray, np.ndar
 
 def linearize_mujoco(model: mujoco.MjModel, data: mujoco.MjData) -> tuple[np.ndarray, np.ndarray]:
     """Numerical linearization straight from MuJoCo (finite differences of qfrc_bias)."""
+    data = mujoco.MjData(model)  # leave the caller's running simulation untouched
     nv = model.nv
     data.qpos[:] = 0.0
     data.qvel[:] = 0.0
@@ -101,6 +102,7 @@ def linearize_mujoco(model: mujoco.MjModel, data: mujoco.MjData) -> tuple[np.nda
     A_qq = -Minv @ dB
     B_qu = Minv @ np.eye(nv)[:, 0]
     A, B = _interleave(A_qq, B_qu)
+    A[1::2, 1::2] = -np.linalg.solve(M0, np.diag(model.dof_damping))
     return A, B
 
 
@@ -112,7 +114,8 @@ def compare_linearizations(N: int, params: SystemParams | None = None) -> dict:
         from config import load_defaults
 
         params = load_defaults()
-    params.N = N
+    from dataclasses import replace
+    params = replace(params, N=N)
     model, data = compile_model(N, params)
     rec = RecursivePendulumChain(
         cart_mass=params.cart_mass,

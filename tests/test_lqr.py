@@ -115,8 +115,7 @@ def test_lqr_stabilizes_from_initial_angle(N):
     controller = make_controller(cp, N, u_max=p.cart_max_force, A=A, B=B)
     theta_deg = np.full(N, INITIAL_ANGLE_DEG[N])
     res = sim.run_headless(controller, p, cp, theta_deg=theta_deg)
-    # weighted mean angle goes to zero, cart bounded
-    w = np.linspace(1.0, 1.0, N) / N
-    angle = w @ res.theta  # res.theta is (N, n_steps)
-    assert abs(np.rad2deg(angle[-1])) < 1.0
+    # Every physical segment remains upright during the final second.
+    angle = np.cumsum(res.theta, axis=0)
+    assert np.max(np.abs(np.rad2deg(angle[:, -101:]))) < 1.0
     assert np.max(np.abs(res.x)) < 5.0

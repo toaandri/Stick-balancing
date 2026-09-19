@@ -26,6 +26,7 @@ class PIDController(BaseController):
         u_max: float = 100.0,
     ) -> None:
         super().__init__(u_max)
+        cparams.validate()
         self.kp_angle = float(cparams.kp)
         self.kd_angle = float(cparams.kd)
         self.ki = float(cparams.ki)

@@ -58,9 +58,13 @@ def main() -> None:
     p3.sim_time = 8.0
     cp_lqr = load_controller_defaults()
     cp_lqr.type = "lqr"
-    critical, iters, _ = bisect_angle(p3, cp_lqr, lo=0.5, hi=25.0, tol=0.1)
+    try:
+        critical, iters, _ = bisect_angle(p3, cp_lqr, lo=0.5, hi=25.0, tol=0.1)
+        stability_text = f'LQR N=3 local threshold: {critical:.3f} deg ({iters} iterations)\n'
+    except ValueError as exc:
+        stability_text = f'No valid bisection bracket: {exc}\n'
     with open(out / "stability_limit.txt", "w", encoding="utf-8") as fh:
-        fh.write(f"LQR N=3 critical angle: {critical:.3f} deg ({iters} iterations)\n")
+        fh.write(stability_text)
     angles = [1.0, 4.0, 8.0, 12.0, 16.0, 20.0, 25.0]
     sweep = sweep_initial_angle(p3, cp_lqr, angles_deg=angles, N=3)
     plot_stability_limit(
@@ -72,7 +76,7 @@ def main() -> None:
     cp_pid.type = "pid"
     with open(out / "robustness.txt", "w", encoding="utf-8") as fh:
         fh.write("== initial angle ==\n")
-        fh.write(print_table(sweep) + "\n\n")
+        fh.write(print_table(sweep_initial_angle(p, cp_pid, angles_deg=angles, N=1)) + "\n\n")
         fh.write("== joint friction ==\n")
         fh.write(
             print_table(

@@ -72,7 +72,8 @@ def generate_mjcf(N: int, params: SystemParams) -> str:
     Returns:
         Complete MJCF document as a string.
     """
-    if N < 1:
+    params.validate()
+    if isinstance(N, bool) or not isinstance(N, int) or N < 1:
         raise ValueError("N must be >= 1")
 
     cart_h = params.cart_height

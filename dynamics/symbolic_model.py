@@ -11,6 +11,7 @@ qd = [xd, thd1..thdN]. Segment i's world axis is e(theta_1+...+theta_i).
 from __future__ import annotations
 
 import sympy as sp
+from dynamics.recursive_model import capsule_inertia
 
 
 def _e(phi: sp.Expr) -> tuple[sp.Expr, sp.Expr]:
@@ -39,7 +40,7 @@ class SymbolicPendulumChain:
         self.g = float(gravity)
         self.r = float(segment_radius)
         if segment_inertia is None:
-            self.I = self.m * self.L * self.L / 12.0 + self.m * self.r * self.r / 4.0
+            self.I = capsule_inertia(self.m, self.L, self.r)
         else:
             self.I = float(segment_inertia)
         self._cache: dict[int, tuple[callable, callable]] = {}

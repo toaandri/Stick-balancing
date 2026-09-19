@@ -18,6 +18,7 @@ from controllers.factory import make_controller
 from simulation.mujoco_model import compile_model
 from simulation.simulator import Simulator
 from visualization.plots import plot_timeseries
+from experiments import save_result
 
 
 def main() -> None:
@@ -45,12 +46,7 @@ def main() -> None:
 
     out = Path(args.out)
     out.mkdir(parents=True, exist_ok=True)
-    np.savez(
-        out / "result.npz",
-        t=res.t, x=res.x, xdot=res.xdot, theta=res.theta,
-        thetadot=res.thetadot, u=res.u, u_applied=res.u_applied,
-        states=res.states,
-    )
+    save_result(res, out)
     fig = plot_timeseries(res, str(out / "timeseries.png"))
     print(f"saved results to {out}")
     print(f"final angle: {np.rad2deg(res.theta[0, -1]):.3f} deg")

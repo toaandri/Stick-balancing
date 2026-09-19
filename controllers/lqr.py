@@ -29,6 +29,7 @@ class LQRController(BaseController):
         u_max: float = 100.0,
     ) -> None:
         super().__init__(u_max)
+        cparams.validate()
         A = np.asarray(A, dtype=float)
         B = np.asarray(B, dtype=float)
         n = A.shape[0]

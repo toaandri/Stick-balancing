@@ -26,17 +26,13 @@ METRIC_COLUMNS = [
 
 
 def _lqr_Q(N: int, cparams: ControllerParams) -> np.ndarray:
-    return build_lqr_Q(
-        N, cparams.q_pos, cparams.q_vel, cparams.q_angle, cparams.q_angle_vel
-    )
+    from controllers.lqr import LQRController
+    return LQRController._build_q(cparams, N)
 
 
 def _metric_row(name: str, res, cparams: ControllerParams, N: int) -> dict:
     dt = float(np.diff(res.t)[0]) if len(res.t) > 1 else 0.01
-    if cparams.type == "lqr":
-        Q = _lqr_Q(N, cparams)
-    else:
-        Q = np.eye(res.states.shape[0])
+    Q = _lqr_Q(N, cparams)
     R = np.array([[cparams.R]])
     m = summarize(res, dt, Q, R)
     row = {"name": name, "N": N}
@@ -108,6 +104,8 @@ def _with_N(params: SystemParams, N: int) -> SystemParams:
 
 def print_table(rows: Sequence[dict]) -> str:
     """Render metric rows as a table (returns the string and prints it)."""
-    table = build_table(rows, METRIC_COLUMNS)
+    extra = list(dict.fromkeys(k for row in rows for k in row if k not in METRIC_COLUMNS))
+    columns = [k for k in METRIC_COLUMNS if any(k in row for row in rows)] + extra
+    table = build_table(rows, columns)
     print(table)
     return table

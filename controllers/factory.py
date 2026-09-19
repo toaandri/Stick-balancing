@@ -37,6 +37,7 @@ def make_controller(
         A, B: continuous linearized dynamics (required for lqr / mpc).
         dt: control period (used by mpc).
     """
+    cparams.validate()
     ctype = cparams.type
     if ctype == "none":
         return PassiveController(u_max=u_max)

@@ -45,7 +45,7 @@ def settling_time(
     threshold_deg: float = 1.0,
     tol_deg: float = 0.1,
 ) -> float | None:
-    """First time (s) after which the weighted mean angle stays within a band.
+    """First time (s) after which all absolute segment angles stay within a band.
 
     The angle is considered settled once, for all remaining samples, it stays
     inside `threshold_deg` (with a small tolerance for numerical noise). Returns
@@ -53,15 +53,14 @@ def settling_time(
     """
     theta = np.asarray(theta, dtype=float)
     t = np.asarray(t, dtype=float)
-    ang = np.abs(np.rad2deg(weighted_mean_angle(theta)))
+    ang = np.max(np.abs(np.rad2deg(np.cumsum(np.atleast_2d(theta), axis=0))), axis=0)
     thresh = threshold_deg + tol_deg
     if len(ang) == 0:
         return None
     # find the first index such that everything after is within the band
-    for i in range(len(ang)):
-        if np.all(ang[i:] <= thresh):
-            return float(t[i])
-    return None
+    outside = np.flatnonzero(~np.isfinite(ang) | (ang > thresh))
+    start = int(outside[-1] + 1) if outside.size else 0
+    return float(t[start]) if start < len(t) else None
 
 
 def max_abs_cart(x: np.ndarray) -> float:
@@ -107,9 +106,15 @@ def success(
     angle_tol_deg: float = 1.0,
     max_cart: float = 5.0,
 ) -> bool:
-    """True if the run settled: final mean angle small and cart bounded."""
-    final = np.abs(np.rad2deg(weighted_mean_angle(theta[..., -1] if theta.ndim == 2 else theta)))
-    return bool(final < angle_tol_deg and max_abs(x) < max_cart)
+    """True if every final absolute segment angle is small and the cart stayed bounded.
+
+    This endpoint indicator is not proof of sustained or asymptotic stability."""
+    theta = np.atleast_2d(np.asarray(theta, dtype=float))
+    x = np.asarray(x, dtype=float)
+    if not theta.size or not x.size or not np.all(np.isfinite(theta)) or not np.all(np.isfinite(x)):
+        return False
+    final = np.abs(np.rad2deg(np.cumsum(theta[:, -1])))
+    return bool(np.all(final < angle_tol_deg) and max_abs(x) < max_cart)
 
 
 def summarize(res: SimulationResult, dt: float, Q: np.ndarray, R: np.ndarray) -> dict:
@@ -118,14 +123,14 @@ def summarize(res: SimulationResult, dt: float, Q: np.ndarray, R: np.ndarray) ->
         dt = float(np.diff(res.t)[0]) if len(res.t) > 1 else 0.01
     settle = settling_time(res.theta, res.t)
     return {
-        "rmse_theta": rmse(weighted_mean_angle(res.theta)),
+        "rmse_theta": rmse(np.cumsum(res.theta, axis=0)),
         "rmse_x": rmse(res.x),
-        "max_theta_deg": float(np.max(np.abs(np.rad2deg(res.theta)))),
+        "max_theta_deg": float(np.max(np.abs(np.rad2deg(np.cumsum(res.theta, axis=0))))),
         "max_x": max_abs_cart(res.x),
         "max_u": max_abs(res.u_applied),
         "settling_time": settle if settle is not None else float("nan"),
         "control_effort": control_effort(res.u_applied, dt),
         "control_energy": control_energy(res.u_applied, dt),
-        "cost": cost_J(res.states, res.u_applied, Q, R, dt),
+        "cost": cost_J(res.states[:, :-1], res.u_applied[:-1], Q, R, dt),
         "success": success(res.theta, res.x),
     }

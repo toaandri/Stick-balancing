@@ -16,8 +16,10 @@ def test_viewer_settings_roundtrip():
     assert not s.paused
     s.set_speed(2.5)
     assert s.speed == 2.5
-    s.set_target_angle(3.0)
-    assert s.target_theta_deg[0] == 3.0
+    s.request_step()
+    assert s.step_requested and s.paused
+    s.request_reset()
+    assert s.reset_requested
     s.stop()
     assert not s.running
 

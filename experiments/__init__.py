@@ -13,6 +13,7 @@ from experiments.robustness import (
     sweep_friction,
     sweep_noise,
     sweep_delay,
+    sweep_parameter,
 )
 from experiments.stability_limit import bisect_angle
 from experiments.scalability import step_time_ms, scalability_rows
@@ -31,6 +32,7 @@ __all__ = [
     "sweep_friction",
     "sweep_noise",
     "sweep_delay",
+    "sweep_parameter",
     "bisect_angle",
     "step_time_ms",
     "scalability_rows",

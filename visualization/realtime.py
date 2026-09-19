@@ -1,7 +1,7 @@
 """Realtime rendering of the cart + N-link chain via the MuJoCo passive viewer.
 
-`launch_passive` blocks on the main thread, so the simulation is advanced from
-a background thread while the viewer keeps the GUI responsive. State shared
+The passive viewer renders asynchronously; this function advances physics
+at the configured control rate and synchronizes under the viewer lock. State shared
 with the viewer (pause, speed) is guarded by a small thread-safe settings
 object.
 """
@@ -17,8 +17,6 @@ import numpy as np
 
 from config import ControllerParams, SystemParams
 from controllers.factory import make_controller
-from dynamics.linearization import linearize_around_vertical
-from dynamics.recursive_model import RecursivePendulumChain
 from simulation.mujoco_model import compile_model
 
 
@@ -29,8 +27,10 @@ class ViewerSettings:
         self._lock = threading.Lock()
         self.paused = False
         self.speed = 1.0
-        self.target_theta_deg = np.zeros(1)
+        self.history = []
         self.running = True
+        self.step_requested = False
+        self.reset_requested = False
 
     def toggle_pause(self) -> None:
         with self._lock:
@@ -40,9 +40,14 @@ class ViewerSettings:
         with self._lock:
             self.speed = max(0.0, speed)
 
-    def set_target_angle(self, angle_deg: float) -> None:
+    def request_step(self) -> None:
         with self._lock:
-            self.target_theta_deg[0] = angle_deg
+            self.paused = True
+            self.step_requested = True
+
+    def request_reset(self) -> None:
+        with self._lock:
+            self.reset_requested = True
 
     def stop(self) -> None:
         with self._lock:
@@ -50,18 +55,12 @@ class ViewerSettings:
 
 
 def _make_controller(params: SystemParams, cparams: ControllerParams):
+    from experiments.runner import make_A_B
     A = B = None
     if cparams.type in ("lqr", "mpc"):
-        rec = RecursivePendulumChain(
-            cart_mass=params.cart_mass,
-            segment_mass=params.segment_mass,
-            segment_length=params.segment_length,
-            cart_height=params.cart_height,
-            segment_radius=params.segment_radius,
-        )
-        rec.set_N(params.N)
-        A, B, _ = linearize_around_vertical(rec)
+        A, B = make_A_B(params)
     return make_controller(cparams, params.N, u_max=params.cart_max_force, A=A, B=B, dt=params.ctrl_dt)
+
 
 
 def run_realtime(
@@ -82,53 +81,55 @@ def run_realtime(
         settings: optional shared ViewerSettings; a fresh one is created if
             not given (e.g. when driven from the tkinter panel).
     """
+    from simulation.simulator import Simulator
+
+    params.validate()
     model, data = compile_model(params.N, params)
-    sim = _make_controller(params, cparams)
-
-    data.qpos[1:] = np.deg2rad(theta_deg)
-    data.qvel[:] = 0.0
-    mujoco.mj_forward(model, data)
-
+    controller = _make_controller(params, cparams)
+    simulator = Simulator(model, data, ctrl_dt=params.ctrl_dt)
+    simulator.configure_noise(params.noise_sigma)
+    simulator.configure_delay(params.command_delay_steps)
     settings = settings or ViewerSettings()
-    if settings.target_theta_deg.size != params.N:
-        settings.target_theta_deg = np.zeros(params.N)
 
-    viewer = mujoco.viewer.launch_passive(model, data)
+    def reset():
+        simulator.reset(seed)
+        simulator.set_state(np.r_[0.0, np.deg2rad(theta_deg), np.zeros(params.N - 1)], np.zeros(params.N + 1))
+        controller.reset()
+        with settings._lock:
+            settings.history.clear()
 
-    def sim_loop() -> None:
-        target = None
-        while settings.running:
-            with settings._lock:
-                paused = settings.paused
-                speed = settings.speed
-                target = settings.target_theta_deg.copy()
-            if paused:
-                time.sleep(0.02)
-                continue
-            # re-target: nudge the top segment back toward the target angle
-            err = target[0] - np.deg2rad(data.qpos[-1])
-            if abs(err) > 1e-6:
-                data.qpos[-1] += 0.05 * err
-            mujoco.mj_forward(model, data)
-            state = np.concatenate(
-                [data.qpos[:1], data.qvel[:1], data.qpos[1:], data.qvel[1:]]
-            )
-            u = sim.compute(state, 0.0)
-            u = float(np.clip(u, -params.cart_max_force, params.cart_max_force))
-            data.ctrl[0] = u
-            mujoco.mj_step(model, data)
-            viewer.sync()
-            time.sleep(0.005 / max(speed, 0.01))
-
-    thread = threading.Thread(target=sim_loop, daemon=True)
-    thread.start()
+    reset()
     try:
-        while viewer.is_running():
-            time.sleep(0.05)
+        with mujoco.viewer.launch_passive(model, data) as viewer:
+            while viewer.is_running() and settings.running:
+                started = time.perf_counter()
+                with settings._lock:
+                    paused, speed = settings.paused, settings.speed
+                    single_step, reset_requested = settings.step_requested, settings.reset_requested
+                    settings.step_requested = settings.reset_requested = False
+                with viewer.lock():
+                    if reset_requested:
+                        reset()
+                    if (not paused and speed > 0) or single_step:
+                        if data.time + params.ctrl_dt <= params.sim_time + 1e-9:
+                            controller_step(simulator, controller)
+                            with settings._lock:
+                                angle = float(np.max(np.abs(np.rad2deg(np.cumsum(data.qpos[1:])))))
+                                settings.history.append((float(data.time), angle, float(data.qpos[0]), float(data.ctrl[0])))
+                                settings.history = settings.history[-500:]
+                        else:
+                            with settings._lock:
+                                settings.paused = True
+                viewer.sync()
+                time.sleep(max(0.001, params.ctrl_dt / max(speed, 0.01) - (time.perf_counter() - started)))
     finally:
         settings.stop()
-        viewer.close()
-        thread.join(timeout=1.0)
+
+
+def controller_step(simulator, controller):
+    """One real control period; shared state mapping, delay and physics stepping."""
+    u = controller.compute(simulator.get_measured_state(), float(simulator.data.time))
+    return simulator.step(u)
 
 
 if __name__ == "__main__":

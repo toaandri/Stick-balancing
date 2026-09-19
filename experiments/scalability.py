@@ -15,7 +15,7 @@ from experiments.runner import run_experiment
 
 
 def step_time_ms(params: SystemParams, cparams: ControllerParams, N: int, n_steps: int = 100) -> float:
-    """Time a short run and return the average physics+control time per step (ms)."""
+    """Time a short run and return the amortized setup+physics+control time per step (ms)."""
     p = copy.copy(params)
     p.N = N
     p.sim_time = n_steps * p.ctrl_dt
@@ -50,7 +50,7 @@ def scalability_rows(
                 "run_ms": round(elapsed_ms, 3),
                 "step_ms": round(elapsed_ms / n_steps, 4),
                 "success": success(res.theta, res.x),
-                "max_theta_deg": round(float(abs(res.theta).max() * 180.0 / 3.141592653589793), 3),
+                "max_theta_deg": round(float(abs(res.theta.cumsum(axis=0)).max() * 180.0 / 3.141592653589793), 3),
             }
         )
     return rows

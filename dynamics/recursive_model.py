@@ -23,6 +23,15 @@ from __future__ import annotations
 import numpy as np
 
 
+def capsule_inertia(mass: float, length: float, radius: float) -> float:
+    """Transverse inertia of MuJoCo's uniform capsule (cylinder + hemispheres)."""
+    cylinder = mass * length / (length + 4 * radius / 3)
+    caps = mass - cylinder
+    return cylinder * (length**2 / 12 + radius**2 / 4) + caps * (
+        2 * radius**2 / 5 + length**2 / 4 + 3 * length * radius / 8
+    )
+
+
 class RecursivePendulumChain:
     def __init__(
         self,
@@ -42,13 +51,15 @@ class RecursivePendulumChain:
         self.r = float(segment_radius)
         if segment_inertia is None:
             # rod + disk approximation about the y axis through the CM
-            self.I = self.m * self.L * self.L / 12.0 + self.m * self.r * self.r / 4.0
+            self.I = capsule_inertia(self.m, self.L, self.r)
         else:
             self.I = float(segment_inertia)
         self.N = 0
         self.nv = 0
 
     def set_N(self, N: int) -> None:
+        if isinstance(N, bool) or not isinstance(N, (int, np.integer)) or N < 1:
+            raise ValueError('N must be a positive integer')
         self.N = int(N)
         self.nv = self.N + 1
 
@@ -125,7 +136,7 @@ class RecursivePendulumChain:
         qd = np.asarray(qd, dtype=float)
         qdd = np.asarray(qdd, dtype=float)
         N = self.N
-        _, c, e, _ = self.kinematics(q)
+        joints, c, e, _ = self.kinematics(q)
         a = self.cm_accel(q, qd, qdd)
         gvec = np.array([0.0, 0.0, -self.g])
 
@@ -142,14 +153,12 @@ class RecursivePendulumChain:
 
         # Hinge torques: subtree sum of (I*alpha + moment of F about joint i).
         # Standard cross product: (r x F)_y = r_z F_x - r_x F_z.
-        for i in range(N):
-            Ji = self._joint_pos(q, i)
-            val = 0.0
-            for k in range(i, N):
-                rk = c[k] - Ji
-                moment = rk[2] * F[k, 0] - rk[0] * F[k, 2]
-                val += self.I * alpha[k] + moment
-            tau[i + 1] = val
+        subtree_force = np.zeros(3)
+        world_moment = 0.0
+        for i in range(N - 1, -1, -1):
+            subtree_force += F[i]
+            world_moment += self.I * alpha[i] + c[i, 2] * F[i, 0] - c[i, 0] * F[i, 2]
+            tau[i + 1] = world_moment - joints[i, 2] * subtree_force[0] + joints[i, 0] * subtree_force[2]
         return tau
 
     def _joint_pos(self, q: np.ndarray, i: int) -> np.ndarray:

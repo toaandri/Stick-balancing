@@ -17,6 +17,8 @@ class BaseController(ABC):
 
     def __init__(self, u_max: float = 100.0) -> None:
         self.u_max = float(u_max)
+        if not np.isfinite(self.u_max) or self.u_max <= 0:
+            raise ValueError('u_max must be finite and positive')
 
     @abstractmethod
     def compute(self, state: np.ndarray, t: float) -> float:
@@ -27,4 +29,6 @@ class BaseController(ABC):
 
     def saturate(self, u: float) -> float:
         """Clamp u to [-u_max, u_max]."""
+        if not np.isfinite(u):
+            raise ValueError('controller produced a nonfinite force')
         return float(np.clip(u, -self.u_max, self.u_max))

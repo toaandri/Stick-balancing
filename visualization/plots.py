@@ -88,7 +88,7 @@ def plot_angles_heatmap(res: SimulationResult, path: str | None = None) -> plt.F
 def plot_control_effort(res: SimulationResult, path: str | None = None) -> plt.Figure:
     """Cumulative control energy int|u|dt and the instantaneous force."""
     dt = float(np.diff(res.t)[0]) if len(res.t) > 1 else 0.01
-    cum = np.cumsum(np.abs(res.u_applied)) * dt
+    cum = np.r_[0.0, np.cumsum(np.abs(res.u_applied[:-1])) * dt]
     fig, axes = plt.subplots(2, 1, figsize=(10, 6), sharex=True)
     axes[0].plot(res.t, res.u_applied, label="u")
     axes[0].axhline(0, color="k", lw=0.5)
@@ -113,10 +113,10 @@ def plot_comparison(
     """Weighted-mean angle over time for several runs (controller comparison)."""
     fig, axes = plt.subplots(2, 1, figsize=(10, 8), sharex=True)
     for res, label in zip(results, labels):
-        mean = np.mean(res.theta, axis=0)
+        mean = np.max(np.abs(np.cumsum(res.theta, axis=0)), axis=0)
         axes[0].plot(res.t, _deg(mean), label=label)
         axes[1].plot(res.t, res.u_applied, label=label, lw=0.8)
-    axes[0].set_ylabel("mean angle [deg]")
+    axes[0].set_ylabel("max absolute segment angle [deg]")
     axes[0].legend(loc="best", fontsize=8)
     axes[1].set_xlabel("time [s]")
     axes[1].set_ylabel("force [N]")

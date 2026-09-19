@@ -9,7 +9,7 @@ the simulator itself is fully headless.
 from __future__ import annotations
 
 import logging
-from dataclasses import dataclass, field
+from dataclasses import asdict, dataclass, field
 from typing import Callable, Optional
 
 import numpy as np
@@ -63,6 +63,8 @@ class Simulator:
         self.data = data
         self.physics_dt = model.opt.timestep if physics_dt is None else physics_dt
         self.ctrl_dt = ctrl_dt
+        if not np.isfinite(ctrl_dt) or ctrl_dt < self.physics_dt or not np.isclose(self.physics_dt, model.opt.timestep) or not np.isclose(ctrl_dt / self.physics_dt, round(ctrl_dt / self.physics_dt)):
+            raise ValueError('control period must be an integer multiple of the model timestep')
         self._n_sub = max(1, round(self.ctrl_dt / self.physics_dt))
 
         self.nq = model.nq
@@ -74,13 +76,15 @@ class Simulator:
         self._impulse_queue: list[dict] = []
         self._torque_queue: list[dict] = []
         self._noise_sigma = 0.0
-        self._delay_buffer: list[np.ndarray] = []
+        self._delay_buffer: list[float] = []
         self._delay_steps = 0
 
     # ------------------------------------------------------------------ state
     def reset(self, seed: Optional[int] = None) -> None:
         """Reset the physics to the model defaults (vertical, cart at x=0)."""
         mujoco.mj_resetData(self.model, self.data)
+        self.clear_perturbations()
+        self.configure_delay(self._delay_steps)
         if seed is not None:
             self._rng = np.random.default_rng(seed)
 
@@ -105,14 +109,19 @@ class Simulator:
 
     # ---------------------------------------------------------- perturbations
     def configure_noise(self, sigma: float) -> None:
+        if not np.isfinite(sigma) or sigma < 0:
+            raise ValueError('noise sigma must be finite and nonnegative')
         self._noise_sigma = float(sigma)
 
     def configure_delay(self, steps: int) -> None:
-        self._delay_steps = max(0, int(steps))
-        self._delay_buffer = [np.zeros(self.n_state) for _ in range(self._delay_steps)]
+        if isinstance(steps, bool) or not isinstance(steps, (int, np.integer)) or steps < 0:
+            raise ValueError('delay must be a nonnegative integer')
+        self._delay_steps = steps
+        self._delay_buffer = [0.0] * steps
 
     def apply_impulse(self, body_name: str, force: np.ndarray, duration: float = 0.05) -> None:
         """Apply a constant force (impulse) on a body for `duration` seconds."""
+        PerturbationSpec(force=np.asarray(force).tolist(), duration=duration).validate()
         body_id = mujoco.mj_name2id(self.model, mujoco.mjtObj.mjOBJ_BODY, body_name)
         if body_id < 0:
             raise ValueError(f"unknown body {body_name!r}")
@@ -122,11 +131,12 @@ class Simulator:
 
     def apply_joint_torque(self, joint_name: str, torque: float, duration: float = 0.05) -> None:
         """Apply a constant joint torque for `duration` seconds."""
+        PerturbationSpec(kind='torque', torque=torque, duration=duration).validate()
         joint_id = mujoco.mj_name2id(self.model, mujoco.mjtObj.mjOBJ_JOINT, joint_name)
         if joint_id < 0:
             raise ValueError(f"unknown joint {joint_name!r}")
         self._torque_queue.append(
-            {"joint_id": joint_id, "torque": float(torque), "remaining": duration}
+            {"joint_id": int(self.model.jnt_dofadr[joint_id]), "torque": float(torque), "remaining": duration}
         )
 
     def clear_perturbations(self) -> None:
@@ -139,14 +149,14 @@ class Simulator:
         self.data.qfrc_applied[:] = 0.0
         remaining: list[dict] = []
         for p in self._impulse_queue:
-            self.data.xfrc_applied[p["body_id"], :3] += p["force"]
+            self.data.xfrc_applied[p["body_id"], :3] += p["force"] * min(1.0, p['remaining'] / dt)
             p["remaining"] -= dt
             if p["remaining"] > 0:
                 remaining.append(p)
         self._impulse_queue = remaining
         remaining = []
         for p in self._torque_queue:
-            self.data.qfrc_applied[p["joint_id"]] += p["torque"]
+            self.data.qfrc_applied[p["joint_id"]] += p["torque"] * min(1.0, p['remaining'] / dt)
             p["remaining"] -= dt
             if p["remaining"] > 0:
                 remaining.append(p)
@@ -159,12 +169,20 @@ class Simulator:
     # -------------------------------------------------------------- stepping
     def _physical_step(self, ctrl: float) -> float:
         """Step physics `_n_sub` times; return the engine-saturated ctrl."""
+        if not np.isfinite(ctrl):
+            raise ValueError('control force must be finite')
+        if self._delay_steps:
+            self._delay_buffer.append(float(ctrl))
+            ctrl = self._delay_buffer.pop(0)
         applied = float(np.clip(ctrl, -self.model.actuator_ctrlrange[0, 1],
                                 self.model.actuator_ctrlrange[0, 1]))
         self.data.ctrl[0] = applied
         for _ in range(self._n_sub):
             self._apply_scheduled(self.physics_dt)
+            warnings_before = self.data.warning.number.copy()
             mujoco.mj_step(self.model, self.data)
+            if np.any(self.data.warning.number > warnings_before) or not np.all(np.isfinite(self.get_state())):
+                raise RuntimeError('MuJoCo reported an invalid or unstable simulation step')
         return applied
 
     def run_headless(
@@ -191,6 +209,12 @@ class Simulator:
         Returns:
             SimulationResult with recorded signals.
         """
+        params.validate()
+        cparams.validate()
+        if params.N != self.N or not np.isclose(params.ctrl_dt, self.ctrl_dt):
+            raise ValueError('simulation and parameter dimensions/timing disagree')
+        for spec in perturbations or []:
+            spec.validate()
         self.reset(params.seed)
         self.configure_noise(params.noise_sigma)
         delay = (
@@ -207,6 +231,8 @@ class Simulator:
         else:
             theta = pert_mod.initial_angles(params, self._rng)
         qpos = np.concatenate([[0.0], theta])
+        if theta.shape != (self.N,) or not np.all(np.isfinite(theta)):
+            raise ValueError('theta_deg must contain N finite angles')
         qvel = np.zeros(self.nv)
         self.set_state(qpos, qvel)
         mujoco.mj_forward(self.model, self.data)
@@ -229,24 +255,26 @@ class Simulator:
         sim_t = 0.0
         for i in range(n_steps + 1):
             measured = self.get_measured_state()
-            states[:, i] = measured
-            x[i] = measured[0]
-            xd[i] = measured[1]
-            theta[:, i] = measured[2::2]
-            thd[:, i] = measured[3::2]
+            truth = self.get_state()
+            states[:, i] = truth
+            x[i] = truth[0]
+            xd[i] = truth[1]
+            theta[:, i] = truth[2::2]
+            thd[:, i] = truth[3::2]
             t[i] = sim_t
 
             if i < n_steps:
-                while pending and sim_t >= pending[0][0]:
+                while pending and sim_t + 1e-12 >= pending[0][0]:
                     _, spec = pending.pop(0)
                     self._trigger(spec)
                 u[i] = controller.compute(measured, sim_t)
                 u_applied[i] = self._physical_step(u[i])
-                sim_t += self.ctrl_dt
+                sim_t = float(self.data.time)
             if progress_cb is not None and i % max(1, n_steps // 20) == 0:
                 progress_cb(i, n_steps)
 
         self.data.ctrl[0] = 0.0
+        from analysis.metrics import success
         return SimulationResult(
             t=t,
             x=x,
@@ -262,7 +290,13 @@ class Simulator:
                 "sim_time": params.sim_time,
                 "ctrl_dt": self.ctrl_dt,
                 "seed": params.seed,
+                "system": asdict(params),
+                "controller_params": asdict(cparams),
+                "initial_theta_deg": np.rad2deg(states[2::2, 0]).tolist(),
+                "command_delay_steps": delay,
+                "perturbations": [asdict(p) for p in perturbations or []],
             },
+            success=success(theta, x),
         )
 
     def _trigger(self, p: PerturbationSpec) -> None:

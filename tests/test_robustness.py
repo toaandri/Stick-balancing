@@ -19,6 +19,7 @@ def n1_params():
     p = load_defaults()
     p.N = 1
     p.sim_time = 4.0
+    p.joint_frictionloss = 0.01  # explicit nonideal plant for this robustness study
     return p
 
 
@@ -70,6 +71,7 @@ def test_step_time_ms_positive(n1_params, pid):
 
 
 def test_scalability_rows(n1_params):
+    n1_params.joint_frictionloss = 0.0  # stability assertion is for the reference plant
     cp = load_controller_defaults()
     cp.type = "lqr"
     rows = scalability_rows(n1_params, cp, Ns=[1, 2], theta_deg=1.0)

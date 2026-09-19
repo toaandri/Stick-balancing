@@ -18,6 +18,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from config import load_defaults, load_controller_defaults
 from experiments import compare_controllers, print_table, run_experiment
 from visualization.plots import plot_comparison, plot_timeseries
+from experiments import save_result
 
 
 def main() -> None:
@@ -50,6 +51,7 @@ def main() -> None:
     ]
     plot_comparison(results, [name for name, _ in configs], str(out / "comparison.png"))
     for name, res in zip([name for name, _ in configs], results):
+        save_result(res, out / name)
         plot_timeseries(res, str(out / f"timeseries_{name}.png"))
     print(f"saved dashboard plots to {out}")
 

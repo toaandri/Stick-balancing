@@ -14,7 +14,7 @@ def mujoco_to_state(qpos: np.ndarray, qvel: np.ndarray) -> np.ndarray:
     """Convert MuJoCo qpos/qvel vectors into controller state ordering X."""
     qpos = np.asarray(qpos, dtype=float)
     qvel = np.asarray(qvel, dtype=float)
-    if qpos.shape[0] != qvel.shape[0]:
+    if qpos.ndim != 1 or qvel.ndim != 1 or not qpos.size or qpos.shape != qvel.shape:
         raise ValueError("qpos and qvel must have the same dimension")
     nv = qpos.shape[0]
     N = nv - 1
@@ -29,6 +29,8 @@ def mujoco_to_state(qpos: np.ndarray, qvel: np.ndarray) -> np.ndarray:
 def state_to_mujoco(X: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
     """Convert controller state X back into MuJoCo qpos/qvel vectors."""
     X = np.asarray(X, dtype=float)
+    if X.ndim != 1 or X.size < 2:
+        raise ValueError('state must be a nonempty vector')
     n_state = X.shape[0]
     if n_state % 2 != 0:
         raise ValueError("state dimension must be even")
@@ -65,7 +67,10 @@ def discretize_continuous(A: np.ndarray, B: np.ndarray, dt: float) -> tuple[np.n
     A = np.asarray(A, dtype=float)
     B = np.asarray(B, dtype=float)
     n = A.shape[0]
-    M = np.block([[A, B], [np.zeros((1, n)), np.zeros((1, 1))]]) * dt
+    if A.shape != (n, n) or B.ndim != 2 or B.shape[0] != n or not np.isfinite(dt) or dt <= 0:
+        raise ValueError('invalid state space dimensions or timestep')
+    m = B.shape[1]
+    M = np.block([[A, B], [np.zeros((m, n)), np.zeros((m, m))]]) * dt
     expM = scipy.linalg.expm(M)
     Ad = expM[:n, :n]
     Bd = expM[:n, n:]
