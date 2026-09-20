@@ -1,0 +1,212 @@
+{
+  "schema_version": 1,
+  "checkpoint": "latest",
+  "checkpoint_sha256": "8d9a66fc9ca0194cd5aa867804e1033127499c29f01bf7fda9c8906a06d6981b",
+  "seed": 42,
+  "reset": "seeded_down",
+  "successes": 0,
+  "trials": 20,
+  "weights_unchanged": true,
+  "episodes": [
+    {
+      "schema_version": 1,
+      "episode": 0,
+      "seed": 42,
+      "outcome": "TimeLimit",
+      "elapsed_seconds": 30.00000142492354,
+      "held_seconds": 0.0,
+      "max_cart_m": 1.7416390180587769,
+      "effort_n2_s": 50.65480041503906
+    },
+    {
+      "schema_version": 1,
+      "episode": 1,
+      "seed": 42,
+      "outcome": "TimeLimit",
+      "elapsed_seconds": 30.00000142492354,
+      "held_seconds": 0.0,
+      "max_cart_m": 1.7330907583236694,
+      "effort_n2_s": 52.398704528808594
+    },
+    {
+      "schema_version": 1,
+      "episode": 2,
+      "seed": 42,
+      "outcome": "TimeLimit",
+      "elapsed_seconds": 30.00000142492354,
+      "held_seconds": 0.0,
+      "max_cart_m": 1.7328333854675293,
+      "effort_n2_s": 52.45390701293945
+    },
+    {
+      "schema_version": 1,
+      "episode": 3,
+      "seed": 42,
+      "outcome": "TimeLimit",
+      "elapsed_seconds": 30.00000142492354,
+      "held_seconds": 0.0,
+      "max_cart_m": 1.739278793334961,
+      "effort_n2_s": 51.138397216796875
+    },
+    {
+      "schema_version": 1,
+      "episode": 4,
+      "seed": 42,
+      "outcome": "TimeLimit",
+      "elapsed_seconds": 30.00000142492354,
+      "held_seconds": 0.0,
+      "max_cart_m": 1.7335162162780762,
+      "effort_n2_s": 52.306278228759766
+    },
+    {
+      "schema_version": 1,
+      "episode": 5,
+      "seed": 42,
+      "outcome": "TimeLimit",
+      "elapsed_seconds": 30.00000142492354,
+      "held_seconds": 0.0,
+      "max_cart_m": 1.7350445985794067,
+      "effort_n2_s": 51.940223693847656
+    },
+    {
+      "schema_version": 1,
+      "episode": 6,
+      "seed": 42,
+      "outcome": "TimeLimit",
+      "elapsed_seconds": 30.00000142492354,
+      "held_seconds": 0.0,
+      "max_cart_m": 1.7425391674041748,
+      "effort_n2_s": 50.53059387207031
+    },
+    {
+      "schema_version": 1,
+      "episode": 7,
+      "seed": 42,
+      "outcome": "TimeLimit",
+      "elapsed_seconds": 30.00000142492354,
+      "held_seconds": 0.0,
+      "max_cart_m": 1.7391185760498047,
+      "effort_n2_s": 51.16880416870117
+    },
+    {
+      "schema_version": 1,
+      "episode": 8,
+      "seed": 42,
+      "outcome": "TimeLimit",
+      "elapsed_seconds": 30.00000142492354,
+      "held_seconds": 0.0,
+      "max_cart_m": 1.733608365058899,
+      "effort_n2_s": 52.28750228881836
+    },
+    {
+      "schema_version": 1,
+      "episode": 9,
+      "seed": 42,
+      "outcome": "TimeLimit",
+      "elapsed_seconds": 30.00000142492354,
+      "held_seconds": 0.0,
+      "max_cart_m": 1.7431480884552002,
+      "effort_n2_s": 50.423919677734375
+    },
+    {
+      "schema_version": 1,
+      "episode": 10,
+      "seed": 42,
+      "outcome": "TimeLimit",
+      "elapsed_seconds": 30.00000142492354,
+      "held_seconds": 0.0,
+      "max_cart_m": 1.734588623046875,
+      "effort_n2_s": 52.03535079956055
+    },
+    {
+      "schema_version": 1,
+      "episode": 11,
+      "seed": 42,
+      "outcome": "TimeLimit",
+      "elapsed_seconds": 30.00000142492354,
+      "held_seconds": 0.0,
+      "max_cart_m": 1.7349783182144165,
+      "effort_n2_s": 51.99950408935547
+    },
+    {
+      "schema_version": 1,
+      "episode": 12,
+      "seed": 42,
+      "outcome": "TimeLimit",
+      "elapsed_seconds": 30.00000142492354,
+      "held_seconds": 0.0,
+      "max_cart_m": 1.7389984130859375,
+      "effort_n2_s": 51.191139221191406
+    },
+    {
+      "schema_version": 1,
+      "episode": 13,
+      "seed": 42,
+      "outcome": "TimeLimit",
+      "elapsed_seconds": 30.00000142492354,
+      "held_seconds": 0.0,
+      "max_cart_m": 1.7359892129898071,
+      "effort_n2_s": 51.78956604003906
+    },
+    {
+      "schema_version": 1,
+      "episode": 14,
+      "seed": 42,
+      "outcome": "TimeLimit",
+      "elapsed_seconds": 30.00000142492354,
+      "held_seconds": 0.0,
+      "max_cart_m": 1.7369749546051025,
+      "effort_n2_s": 51.590476989746094
+    },
+    {
+      "schema_version": 1,
+      "episode": 15,
+      "seed": 42,
+      "outcome": "TimeLimit",
+      "elapsed_seconds": 30.00000142492354,
+      "held_seconds": 0.0,
+      "max_cart_m": 1.7350062131881714,
+      "effort_n2_s": 51.947853088378906
+    },
+    {
+      "schema_version": 1,
+      "episode": 16,
+      "seed": 42,
+      "outcome": "TimeLimit",
+      "elapsed_seconds": 30.00000142492354,
+      "held_seconds": 0.0,
+      "max_cart_m": 1.7391891479492188,
+      "effort_n2_s": 51.15462112426758
+    },
+    {
+      "schema_version": 1,
+      "episode": 17,
+      "seed": 42,
+      "outcome": "TimeLimit",
+      "elapsed_seconds": 30.00000142492354,
+      "held_seconds": 0.0,
+      "max_cart_m": 1.731366753578186,
+      "effort_n2_s": 52.77378845214844
+    },
+    {
+      "schema_version": 1,
+      "episode": 18,
+      "seed": 42,
+      "outcome": "TimeLimit",
+      "elapsed_seconds": 30.00000142492354,
+      "held_seconds": 0.0,
+      "max_cart_m": 1.7440001964569092,
+      "effort_n2_s": 50.2736930847168
+    },
+    {
+      "schema_version": 1,
+      "episode": 19,
+      "seed": 42,
+      "outcome": "TimeLimit",
+      "elapsed_seconds": 30.00000142492354,
+      "held_seconds": 0.0,
+      "max_cart_m": 1.7401628494262695,
+      "effort_n2_s": 50.9705696105957
+    }
+  ]
+}

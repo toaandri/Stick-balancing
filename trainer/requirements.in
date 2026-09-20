@@ -1,0 +1,11 @@
+# Candidate direct pins only. NOT a resolved distribution lock.
+# CPython 3.10.11 Windows x64; torch CPU wheels require the official CPU index.
+mlagents==1.1.0
+mlagents-envs==1.1.0
+torch==2.1.1+cpu
+numpy==1.23.5
+grpcio==1.48.2
+protobuf==3.20.3
+onnx==1.15.0
+# ML-Agents 1.1 imports pkg_resources, removed from newer setuptools.
+setuptools==70.3.0

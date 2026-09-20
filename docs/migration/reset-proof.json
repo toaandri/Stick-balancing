@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "checkpoint": "latest",
+  "checkpoint_sha256": "8d9a66fc9ca0194cd5aa867804e1033127499c29f01bf7fda9c8906a06d6981b",
+  "seed": 42,
+  "reset": "seeded_down",
+  "successes": 0,
+  "trials": 0,
+  "weights_unchanged": true,
+  "episodes": [],
+  "interactive": true,
+  "physics_resets": 2,
+  "stopped_by_user": true
+}

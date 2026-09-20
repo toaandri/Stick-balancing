@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-run id="2" testcasecount="13" result="Passed" total="13" passed="13" failed="0" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-09-19 22:40:04Z" end-time="2026-09-19 22:40:04Z" duration="0,5202515">
+  <test-suite type="TestSuite" id="1000" name="StickBalancing Prototype" fullname="StickBalancing Prototype" runstate="Runnable" testcasecount="13" result="Passed" start-time="2026-09-19 22:40:04Z" end-time="2026-09-19 22:40:04Z" duration="0.520252" total="13" passed="13" failed="0" inconclusive="0" skipped="0" asserts="0">
+    <properties>
+      <property name="platform" value="EditMode" />
+    </properties>
+    <test-suite type="Assembly" id="1017" name="StickBalancing.Tests.dll" fullname="D:/Ecole/Maharavo/Stick-balancing/unity/Library/ScriptAssemblies/StickBalancing.Tests.dll" runstate="Runnable" testcasecount="13" result="Passed" start-time="2026-09-19 22:40:04Z" end-time="2026-09-19 22:40:04Z" duration="0.503975" total="13" passed="13" failed="0" inconclusive="0" skipped="0" asserts="0">
+      <properties>
+        <property name="_PID" value="18176" />
+        <property name="_APPDOMAIN" value="Unity Child Domain" />
+        <property name="platform" value="EditMode" />
+        <property name="EditorOnly" value="True" />
+      </properties>
+      <test-suite type="TestSuite" id="1018" name="StickBalancing" fullname="StickBalancing" runstate="Runnable" testcasecount="13" result="Passed" start-time="2026-09-19 22:40:04Z" end-time="2026-09-19 22:40:04Z" duration="0.501824" total="13" passed="13" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-suite type="TestSuite" id="1019" name="Tests" fullname="StickBalancing.Tests" runstate="Runnable" testcasecount="13" result="Passed" start-time="2026-09-19 22:40:04Z" end-time="2026-09-19 22:40:04Z" duration="0.500226" total="13" passed="13" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-suite type="TestFixture" id="1001" name="PhysicsTests" fullname="StickBalancing.Tests.PhysicsTests" classname="StickBalancing.Tests.PhysicsTests" runstate="Runnable" testcasecount="9" result="Passed" start-time="2026-09-19 22:40:04Z" end-time="2026-09-19 22:40:04Z" duration="0.487513" total="9" passed="9" failed="0" inconclusive="0" skipped="0" asserts="0">
+            <properties />
+            <test-case id="1008" name="ActionSaturatesAndResetClearsMotion" fullname="StickBalancing.Tests.PhysicsTests.ActionSaturatesAndResetClearsMotion" methodname="ActionSaturatesAndResetClearsMotion" classname="StickBalancing.Tests.PhysicsTests" runstate="Runnable" seed="233105743" result="Passed" start-time="2026-09-19 22:40:04Z" end-time="2026-09-19 22:40:04Z" duration="0.038621" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-suite type="ParameterizedMethod" id="1005" name="CartRespondsToForceSign" fullname="StickBalancing.Tests.PhysicsTests.CartRespondsToForceSign" classname="StickBalancing.Tests.PhysicsTests" runstate="Runnable" testcasecount="2" result="Passed" start-time="2026-09-19 22:40:04Z" end-time="2026-09-19 22:40:04Z" duration="0.010231" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0">
+              <properties />
+              <test-case id="1003" name="CartRespondsToForceSign(1.0f)" fullname="StickBalancing.Tests.PhysicsTests.CartRespondsToForceSign(1.0f)" methodname="CartRespondsToForceSign" classname="StickBalancing.Tests.PhysicsTests" runstate="Runnable" seed="1414170085" result="Passed" start-time="2026-09-19 22:40:04Z" end-time="2026-09-19 22:40:04Z" duration="0.006422" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+              </test-case>
+              <test-case id="1004" name="CartRespondsToForceSign(-1.0f)" fullname="StickBalancing.Tests.PhysicsTests.CartRespondsToForceSign(-1.0f)" methodname="CartRespondsToForceSign" classname="StickBalancing.Tests.PhysicsTests" runstate="Runnable" seed="1258465178" result="Passed" start-time="2026-09-19 22:40:04Z" end-time="2026-09-19 22:40:04Z" duration="0.001273" asserts="0">
+                <properties>
+                  <property name="retryIteration" value="0" />
+                  <property name="repeatIteration" value="0" />
+                </properties>
+              </test-case>
+            </test-suite>
+            <test-case id="1002" name="DownRestRemainsDownAndFinite" fullname="StickBalancing.Tests.PhysicsTests.DownRestRemainsDownAndFinite" methodname="DownRestRemainsDownAndFinite" classname="StickBalancing.Tests.PhysicsTests" runstate="Runnable" seed="1612426656" result="Passed" start-time="2026-09-19 22:40:04Z" end-time="2026-09-19 22:40:04Z" duration="0.031891" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1009" name="HalvingStepPreservesShortTrajectory" fullname="StickBalancing.Tests.PhysicsTests.HalvingStepPreservesShortTrajectory" methodname="HalvingStepPreservesShortTrajectory" classname="StickBalancing.Tests.PhysicsTests" runstate="Runnable" seed="640346055" result="Passed" start-time="2026-09-19 22:40:04Z" end-time="2026-09-19 22:40:04Z" duration="0.028360" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1007" name="HingesHaveNoActiveDrive" fullname="StickBalancing.Tests.PhysicsTests.HingesHaveNoActiveDrive" methodname="HingesHaveNoActiveDrive" classname="StickBalancing.Tests.PhysicsTests" runstate="Runnable" seed="362608697" result="Passed" start-time="2026-09-19 22:40:04Z" end-time="2026-09-19 22:40:04Z" duration="0.002832" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1006" name="PerturbedUprightFallsWithoutControl" fullname="StickBalancing.Tests.PhysicsTests.PerturbedUprightFallsWithoutControl" methodname="PerturbedUprightFallsWithoutControl" classname="StickBalancing.Tests.PhysicsTests" runstate="Runnable" seed="481037628" result="Passed" start-time="2026-09-19 22:40:04Z" end-time="2026-09-19 22:40:04Z" duration="0.032593" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1010" name="SmallDownOscillationsMatchFreeCartRodPeriod" fullname="StickBalancing.Tests.PhysicsTests.SmallDownOscillationsMatchFreeCartRodPeriod" methodname="SmallDownOscillationsMatchFreeCartRodPeriod" classname="StickBalancing.Tests.PhysicsTests" runstate="Runnable" seed="1409910580" result="Passed" start-time="2026-09-19 22:40:04Z" end-time="2026-09-19 22:40:04Z" duration="0.065473" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1011" name="UndampedUnforcedMotionDoesNotCreateEnergy" fullname="StickBalancing.Tests.PhysicsTests.UndampedUnforcedMotionDoesNotCreateEnergy" methodname="UndampedUnforcedMotionDoesNotCreateEnergy" classname="StickBalancing.Tests.PhysicsTests" runstate="Runnable" seed="912360612" result="Passed" start-time="2026-09-19 22:40:04Z" end-time="2026-09-19 22:40:04Z" duration="0.253103" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+          </test-suite>
+          <test-suite type="TestFixture" id="1012" name="SuccessMonitorTests" fullname="StickBalancing.Tests.SuccessMonitorTests" classname="StickBalancing.Tests.SuccessMonitorTests" runstate="Runnable" testcasecount="4" result="Passed" start-time="2026-09-19 22:40:04Z" end-time="2026-09-19 22:40:04Z" duration="0.008387" total="4" passed="4" failed="0" inconclusive="0" skipped="0" asserts="0">
+            <properties />
+            <test-case id="1013" name="FullRotationIsUprightButNeedsConsecutiveHold" fullname="StickBalancing.Tests.SuccessMonitorTests.FullRotationIsUprightButNeedsConsecutiveHold" methodname="FullRotationIsUprightButNeedsConsecutiveHold" classname="StickBalancing.Tests.SuccessMonitorTests" runstate="Runnable" seed="1261698681" result="Passed" start-time="2026-09-19 22:40:04Z" end-time="2026-09-19 22:40:04Z" duration="0.001162" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1015" name="OppositeRelativeAnglesDoNotHideTiltedSegment" fullname="StickBalancing.Tests.SuccessMonitorTests.OppositeRelativeAnglesDoNotHideTiltedSegment" methodname="OppositeRelativeAnglesDoNotHideTiltedSegment" classname="StickBalancing.Tests.SuccessMonitorTests" runstate="Runnable" seed="1803470864" result="Passed" start-time="2026-09-19 22:40:04Z" end-time="2026-09-19 22:40:04Z" duration="0.000630" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1014" name="PassingTopAtSpeedResetsHold" fullname="StickBalancing.Tests.SuccessMonitorTests.PassingTopAtSpeedResetsHold" methodname="PassingTopAtSpeedResetsHold" classname="StickBalancing.Tests.SuccessMonitorTests" runstate="Runnable" seed="983431908" result="Passed" start-time="2026-09-19 22:40:04Z" end-time="2026-09-19 22:40:04Z" duration="0.000299" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1016" name="RailExitWinsOverUprightPose" fullname="StickBalancing.Tests.SuccessMonitorTests.RailExitWinsOverUprightPose" methodname="RailExitWinsOverUprightPose" classname="StickBalancing.Tests.SuccessMonitorTests" runstate="Runnable" seed="390842415" result="Passed" start-time="2026-09-19 22:40:04Z" end-time="2026-09-19 22:40:04Z" duration="0.000327" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+              <output><![CDATA[Saving results to: C:/Users/Maharavo/AppData/LocalLow/StickBalancing/StickBalancing Prototype\TestResults.xml
+]]></output>
+            </test-case>
+          </test-suite>
+        </test-suite>
+      </test-suite>
+    </test-suite>
+  </test-suite>
+</test-run>

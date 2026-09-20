@@ -8,3 +8,19 @@ results/
 *.npz
 .venv/
 venv/
+
+# Fichiers générés et outils locaux — ne pas versionner.
+builds/
+.kilo/
+unity/Library/
+unity/Temp/
+unity/Obj/
+unity/Logs/
+unity/UserSettings/
+unity/*.csproj
+unity/*.sln
+trainer/runtime/
+packaging/windows/output/
+
+# Cahier des charges local � ne pas versionner.
+correction.txt

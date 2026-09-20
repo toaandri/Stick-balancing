@@ -1,0 +1,6 @@
+{
+  "name": "StickBalancing.Tests",
+  "references": ["StickBalancing.Runtime"],
+  "includePlatforms": ["Editor"],
+  "optionalUnityReferences": ["TestAssemblies"]
+}

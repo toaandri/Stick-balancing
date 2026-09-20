@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "experiment": "315c8663dd2e4ec5ab83998f90d3cf9f",
+  "changed_policy_tensors": 7,
+  "maximum_absolute_change": 0.038503795862197876,
+  "initial_step": 0,
+  "latest_step": 4196,
+  "session_start_steps": [
+    0,
+    2112
+  ],
+  "checkpoint_modules": [
+    "Policy",
+    "global_step",
+    "Optimizer:value_optimizer",
+    "Optimizer:critic"
+  ],
+  "optimizer_parameter_states": 13,
+  "optimizer_max_step": 177.0,
+  "demonstrates": "optimization and resume; not swing-up competence"
+}

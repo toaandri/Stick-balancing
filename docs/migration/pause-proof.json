@@ -1,0 +1,7 @@
+{
+  "schema_version": 1,
+  "status": "paused",
+  "steps": 260,
+  "checkpoint_saved": true,
+  "exclusive_lock_released": true
+}

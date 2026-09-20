@@ -1,0 +1,5 @@
+{
+  "name": "StickBalancing.Runtime",
+  "rootNamespace": "StickBalancing",
+  "references": ["Unity.ML-Agents"]
+}
