@@ -24,3 +24,10 @@ packaging/windows/output/
 
 # Cahier des charges local — ne pas versionner.
 correction.txt
+
+# Dossiers et fichiers locaux inutiles au versionnage.
+.github/
+.kilo/
+.pytest_cache/
+MUJOCO_LOG.TXT
+screenshot.png
