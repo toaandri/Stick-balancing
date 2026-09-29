@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
-  "status": "prototype-built-license-batch-revalidation-required",
+  "status": "prototype-built-batch-validated",
   "unity_editor": "6000.0.60f1",
-  "unity_hub_license": "Personal activated in Hub on 2026-09-19; batch mode returned code 198 later",
+  "unity_hub_license": "Personal active in Hub; batch validation passed on 2026-09-29",
   "mlagents_release": "release_22",
   "unity_mlagents": "3.0.0",
   "python": "3.10.11",
@@ -16,13 +16,13 @@
   "offline_training_validated": false,
   "unity_sentis": "2.1.0",
   "setuptools": "70.3.0",
-  "unity_physics_tests_passed": 13,
-  "python_tests_passed": 31,
+  "unity_physics_tests_passed": 16,
+  "python_tests_passed": 35,
   "notes": [
     "Bugs fixes applied: lock_hashes.py undefined variable `header`, desktop.py empty events.jsonl crash and wrong status mapping, session.py get_step() called as property, evaluate.py misplaced import yaml.",
     "N=2 and N=3 support added: SwingUpAgent.cs restriction lifted, BuildPrototype.cs extended with CreateSceneN2/N3 and BuildWorker(N), DesktopApp.cs full state machine (Ready/Starting/Training/Paused/Stopping/Evaluating/Testing/Error), success rate chart, N selector.",
     "desktop.py extended: --segments argument, dynamic behavior name, segments returned in list/create/train responses.",
     "launch.py: checkpoint resume path search made robust to dynamic behavior name.",
-    "31 Python migration tests pass. Unity batch license revalidation still required before running C# tests."
+    "35 Python migration tests pass. Unity batch validation passed with 16 C# tests on 2026-09-29."
   ]
 }

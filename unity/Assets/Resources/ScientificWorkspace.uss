@@ -1,0 +1,18 @@
+Button {
+    background-color: rgb(38, 49, 63);
+    border-color: rgb(76, 91, 108);
+    -unity-text-align: middle-center;
+}
+Button:hover { background-color: rgb(51, 68, 85); border-color: rgb(118, 160, 185); }
+Button:focus { border-color: rgb(90, 215, 239); border-top-width: 2px; border-bottom-width: 2px; border-left-width: 2px; border-right-width: 2px; }
+Button:active { background-color: rgb(27, 82, 107); }
+Button:disabled { opacity: 0.42; }
+Button.primary { background-color: rgb(20, 107, 140); border-color: rgb(65, 170, 200); }
+Button.primary:hover { background-color: rgb(27, 131, 163); }
+Button.project-row { background-color: rgb(26, 35, 47); -unity-text-align: middle-left; padding-left: 12px; }
+Button.project-row.selected { background-color: rgb(29, 72, 91); border-left-color: rgb(67, 212, 228); border-left-width: 3px; }
+.unity-base-field__input { min-height: 28px; padding-left: 7px; }
+.unity-base-field__label { margin-bottom: 3px; font-size: 12px; }
+.unity-foldout__text { color: rgb(218, 229, 240); }
+.unity-foldout__content { margin-left: 0; }
+.unity-scroll-view__content-container { padding-right: 4px; }

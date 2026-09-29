@@ -149,7 +149,7 @@ namespace StickBalancing.Editor
             EditorSceneManager.SaveScene(
                 EditorSceneManager.GetActiveScene(), "Assets/Scenes/Desktop.unity");
             ApplyCommonPlayerSettings();
-            PlayerSettings.productName = "StickBalancing RL";
+            PlayerSettings.productName = "Stick Balancing";
             PlayerSettings.defaultScreenWidth = 1440;
             PlayerSettings.defaultScreenHeight = 900;
             PlayerSettings.fullScreenMode = FullScreenMode.Windowed;

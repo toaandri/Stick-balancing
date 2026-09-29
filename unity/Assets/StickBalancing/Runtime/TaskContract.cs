@@ -21,6 +21,9 @@ namespace StickBalancing
         public float speed_tolerance = .5f;
         public int seed = 42;
 
+        // Cart position/velocity, then sin/cos/angular velocity for each link.
+        public int observation_size => 2 + 3 * segments;
+
         public void Validate()
         {
             if (schema_version != 1 || segments < 1 || segments > 3 || seed < 0 ||

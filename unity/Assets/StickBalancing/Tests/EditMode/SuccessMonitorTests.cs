@@ -5,6 +5,14 @@ namespace StickBalancing.Tests
 {
     public class SuccessMonitorTests
     {
+        [TestCase(1, 5)]
+        [TestCase(2, 8)]
+        [TestCase(3, 11)]
+        public void ObservationSizeMatchesSegmentCount(int segments, int expected)
+        {
+            Assert.AreEqual(expected, new TaskContract { segments = segments }.observation_size);
+        }
+
         [Test]
         public void FullRotationIsUprightButNeedsConsecutiveHold()
         {

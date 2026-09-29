@@ -16,7 +16,7 @@ Depuis la racine du dépôt :
 .\packaging\windows\build-installer.ps1
 ```
 
-Le résultat est `packaging/windows/output/StickBalancing-Prototype-Setup.exe`. `bundle-manifest.json` contient les tailles et SHA-256 de chaque fichier livré. `notices/` contient les notices de licences collectées par le script ; celles qui ne peuvent pas être déterminées automatiquement doivent être revues avant une diffusion publique.
+Le résultat est `packaging/windows/output/StickBalancing-Setup.exe`. `bundle-manifest.json` contient les tailles et SHA-256 de chaque fichier livré. `notices/` contient les notices de licences collectées par le script ; celles qui ne peuvent pas être déterminées automatiquement doivent être revues avant une diffusion publique.
 
 Le bundle ne télécharge pas de dépendance, ne modifie pas `PATH` et ne lance pas `pip`. Une mise à jour du code existant peut être recopiée dans un staging déjà vérifié avec :
 

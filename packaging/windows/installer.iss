@@ -4,7 +4,7 @@
 
 [Setup]
 AppId={{9405B46D-2519-4880-A026-AB787878F862}
-AppName=Stick Balancing — Prototype
+AppName=Stick Balancing
 AppVersion=0.1.0
 AppPublisher=Stick Balancing
 DefaultDirName={localappdata}\Programs\StickBalancing
@@ -15,7 +15,7 @@ ArchitecturesInstallIn64BitMode=x64compatible
 DisableProgramGroupPage=yes
 WizardStyle=modern
 OutputDir=output
-OutputBaseFilename=StickBalancing-Prototype-Setup
+OutputBaseFilename=StickBalancing-Setup
 Compression=lzma2/fast
 SolidCompression=yes
 UninstallDisplayIcon={app}\StickBalancing.exe

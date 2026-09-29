@@ -11,6 +11,6 @@ if (!(Test-Path -LiteralPath (Join-Path $stagingPath 'bundle-manifest.json'))) {
 }
 & $compilerPath "/DStagingDir=$stagingPath" (Join-Path $projectRoot 'packaging/windows/installer.iss')
 if ($LASTEXITCODE -ne 0) { throw "Inno Setup failed with exit code $LASTEXITCODE" }
-$installer = Join-Path $projectRoot 'packaging/windows/output/StickBalancing-Prototype-Setup.exe'
+$installer = Join-Path $projectRoot 'packaging/windows/output/StickBalancing-Setup.exe'
 if (!(Test-Path -LiteralPath $installer)) { throw 'Inno Setup did not create the expected installer.' }
 Get-FileHash -Algorithm SHA256 -LiteralPath $installer

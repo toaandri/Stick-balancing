@@ -119,7 +119,7 @@ def main(argv=None):
                         'path': 'snapshots/initial.pt', 'steps': 0, 'sha256': digest(initial)}
                     atomic_json(metadata_path, metadata)
                     emit('checkpoint', kind='initial', steps=0)
-            emit('training', steps=max(t.get_step() for t in self.trainers.values()))
+            emit('training', steps=max(t.get_step for t in self.trainers.values()))
 
         def advance(self, env_manager):
             try:
