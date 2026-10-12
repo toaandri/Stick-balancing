@@ -21,7 +21,7 @@ def main(argv=None):
     parser.add_argument('--data-root', type=Path)
     parser.add_argument('--experiment', type=Path)
     parser.add_argument('--player', type=Path)
-    parser.add_argument('--label', default='Pendule N=1')
+    parser.add_argument('--label', default='Pendulum N=1')
     parser.add_argument('--seed', type=int, default=42)
     parser.add_argument('--force', type=float, default=100)
     parser.add_argument('--length', type=float, default=1)

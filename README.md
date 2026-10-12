@@ -12,7 +12,7 @@ Stick Balancing combines a Unity physics simulation, a scientific desktop worksp
 
 All computation stays on the local machine. The packaged application includes its own runtime, so end users do not need to install Python, Unity, or ML-Agents.
 
-![Animated tour of the Stick Balancing scientific workspace](docs/assets/scientific-workspace.gif)
+![Current English scientific workspace](docs/assets/desktop-preview.png)
 
 > [!IMPORTANT]
 > The complete technical pipeline works, but control competence has not yet been demonstrated. The latest documented frozen evaluation scored **0 successes out of 20 trials**. Changed weights or a higher reward do not, by themselves, prove physical success.
@@ -50,7 +50,9 @@ All computation stays on the local machine. The packaged application includes it
 
 The desktop follows the working model used by scientific and CAD software: tools are grouped around a large central simulation area, the active project is visible, and operations expose their current state.
 
-![Full Stick Balancing desktop interface](docs/assets/desktop-preview.png)
+The interface, tooltips and help are in English. Existing experiment names remain as entered by their author. Buttons have visible keyboard focus and a minimum height of 36px.
+
+The preview above is an actual Unity UI render using an isolated empty experiment folder. It does not show invented training results. The older [workspace animation](docs/assets/scientific-workspace.gif) is retained as a historical capture from before the English interface update.
 
 | Area | Purpose |
 |---|---|

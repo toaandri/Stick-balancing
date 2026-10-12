@@ -85,7 +85,7 @@ namespace StickBalancing
             if (ownedProcess == null) return true;
             quitAfterSave = true;
             StopOwned();
-            detail.text = "Sauvegarde en cours. Fermez après la fin de l'opération.";
+            detail.text = "Saving. Close after the operation finishes.";
             return false;
         }
 
@@ -104,19 +104,19 @@ namespace StickBalancing
             settings?.SetEnabled(!busy);
             pauseButton.SetEnabled(next == AppState.Training || next == AppState.Evaluating || next == AppState.Testing);
             pauseButton.text = next == AppState.Testing || next == AppState.Evaluating
-                ? "Arrêter le test"
-                : "Mettre en pause et sauvegarder";
+                ? "Stop the test"
+                : "Pause and save";
             resetButton.SetEnabled(next == AppState.Testing && interactiveTest);
 
             stateLabel.text = next switch {
-                AppState.Ready     => "Prêt",
-                AppState.Starting  => "Démarrage…",
-                AppState.Training  => "Calcul en cours",
-                AppState.Paused    => "En pause",
-                AppState.Stopping  => "Sauvegarde…",
-                AppState.Evaluating => "Mesure en cours…",
-                AppState.Testing   => "Essai 3D en cours",
-                AppState.Error     => "Erreur",
+                AppState.Ready     => "Ready",
+                AppState.Starting  => "Starting…",
+                AppState.Training  => "Computing",
+                AppState.Paused    => "Paused",
+                AppState.Stopping  => "Saving…",
+                AppState.Evaluating => "Measuring…",
+                AppState.Testing   => "3D test running",
+                AppState.Error     => "Error",
                 _                  => "?"
             };
 
@@ -154,7 +154,7 @@ namespace StickBalancing
             if (ownedProcess != null) return;
             if (!File.Exists(Python))
             {
-                detail.text = "Runtime Python privé absent. Consultez les instructions de construction.";
+                detail.text = "Private Python runtime missing. See the build instructions.";
                 SetState(AppState.Error);
                 return;
             }
@@ -238,12 +238,12 @@ namespace StickBalancing
             experiments.Clear();
             projectRows.Clear();
             if (response.items == null || response.items.Length == 0)
-                experiments.Add(Text("Aucun projet. Ouvrez « Nouveau projet » ci-dessous pour commencer.", 13));
+                experiments.Add(Text("No projects. Open “New project” below to get started.", 13));
             foreach (var item in response.items ?? Array.Empty<Item>())
             {
                 var captured = item;
                 var btn = new Button(() => Select(captured)) {
-                    text = captured.label + $"  [N={captured.segments}]\n{captured.steps} étapes"
+                    text = captured.label + $"  [N={captured.segments}]\n{captured.steps} steps"
                 };
                 StyleButton(btn);
                 btn.AddToClassList("project-row");
@@ -265,17 +265,17 @@ namespace StickBalancing
             try {
                 var task = JsonUtility.FromJson<TaskContract>(File.ReadAllText(Path.Combine(selected, "task.json")));
                 preview?.Configure(task);
-            } catch (Exception ex) { detail.text = "Aperçu indisponible : " + ex.Message; }
-            counter.text = item.steps + " étapes";
+            } catch (Exception ex) { detail.text = "Preview unavailable: " + ex.Message; }
+            counter.text = item.steps + " steps";
             segmentsLabel.text = $"N = {item.segments} segment{(item.segments > 1 ? "s" : "")}";
             checkpointLabel.text = item.label + " • " + item.id.Substring(0, 8)
-                + "\nOrigine : " + (item.steps == 0 ? "neuf" : "entraîné localement");
-            detail.text = "Paramètres conservés. Utilisez le panneau de gauche pour créer une nouvelle expérience.";
+                + "\nOrigin: " + (item.steps == 0 ? "new" : "trained locally");
+            detail.text = "Parameters preserved. Use the left panel to create a new experiment.";
             eventOffset = 0;
             rewards.Clear(); successRates.Clear();
             history.Clear();
-            rewardRange.text = "Aucune mesure disponible pour ce projet";
-            successRange.text = "Aucune évaluation dans cette session";
+            rewardRange.text = "No measurements available for this project";
+            successRange.text = "No evaluation in this session";
             rewardChart.MarkDirtyRepaint(); successChart.MarkDirtyRepaint();
             SetState(AppState.Ready);
             PollEvents();
@@ -286,7 +286,7 @@ namespace StickBalancing
             if (string.IsNullOrWhiteSpace(nameInput.value) || seedInput.value < 0 ||
                 !TaskContract.Finite(lengthInput.value) || lengthInput.value <= 0 ||
                 !TaskContract.Finite(forceInput.value) || forceInput.value <= 0) {
-                detail.text = "Vérifiez le nom, la graine (≥ 0), la longueur et la force (> 0).";
+                detail.text = "Check the name, seed (≥ 0), length and force (> 0).";
                 nameInput.Focus();
                 return;
             }
@@ -314,8 +314,8 @@ namespace StickBalancing
 
         void StartTraining()
         {
-            if (budgetInput.value < 256 || budgetInput.value > 10000000) { detail.text = "Le budget doit être compris entre 256 et 10 000 000 étapes."; budgetInput.Focus(); return; }
-            if (string.IsNullOrEmpty(selected)) { detail.text = "Sélectionnez une expérience."; return; }
+            if (budgetInput.value < 256 || budgetInput.value > 10000000) { detail.text = "The budget must be between 256 and 10,000,000 steps."; budgetInput.Focus(); return; }
+            if (string.IsNullOrEmpty(selected)) { detail.text = "Select an experiment."; return; }
             int segs = GetSelectedSegments();
             Run("desktop train --experiment " + Quote(selected)
                 + " --player " + Quote(WorkerPath(segs))
@@ -323,22 +323,22 @@ namespace StickBalancing
                 AppState.Training,
                 response => {
                     SetState(response.status == "paused" ? AppState.Paused : AppState.Ready);
-                    counter.text = response.steps + " étapes";
+                    counter.text = response.steps + " steps";
                     detail.text = response.status == "paused"
-                        ? "Session en pause. Checkpoint sauvegardé."
-                        : "Session terminée. Checkpoint sauvegardé.";
+                        ? "Session paused. Checkpoint saved."
+                        : "Session completed. Checkpoint saved.";
                 });
         }
 
         void Evaluate(string checkpoint, bool visible)
         {
-            if (string.IsNullOrEmpty(selected)) { detail.text = "Sélectionnez une expérience."; return; }
+            if (string.IsNullOrEmpty(selected)) { detail.text = "Select an experiment."; return; }
             if (checkpoint != "zero" && !File.Exists(Path.Combine(selected, "snapshots", checkpoint + ".pt")))
             {
-                detail.text = "Ce checkpoint n'existe pas encore. Lancez une première session.";
+                detail.text = "This checkpoint does not exist yet. Run a first session.";
                 return;
             }
-            detail.text = "Sauvegarde figée : " + checkpoint + ". Aucun calcul ne modifie les paramètres pendant ces essais.";
+            detail.text = "Frozen checkpoint: " + checkpoint + ". No optimization changes the parameters during these tests.";
             interactiveTest = visible;
             int segs = GetSelectedSegments();
             AppState runState = visible ? AppState.Testing : AppState.Evaluating;
@@ -349,8 +349,8 @@ namespace StickBalancing
                 runState,
                 response => {
                     SetState(AppState.Ready);
-                    stateLabel.text = response.successes + " / " + response.trials + " réussites";
-                    detail.text = "Mesure terminée. Paramètres inchangés. Rapport enregistré dans l'expérience.";
+                    stateLabel.text = response.successes + " / " + response.trials + " successes";
+                    detail.text = "Measurement completed. Parameters unchanged. Report saved in the experiment.";
                     // Record success rate for the chart.
                     if (response.trials > 0)
                     {
@@ -387,7 +387,7 @@ namespace StickBalancing
             viewport?.MarkDirtyRepaint();
             if (preview?.Chain != null && telemetry != null) {
                 var body = preview.Chain;
-                telemetry.text = $"APERÇU INDÉPENDANT   |   x = {body.Cart.jointPosition[0]:F3} m   |   θ₁ = {Mathf.DeltaAngle(0, body.Links[0].jointPosition[0] * Mathf.Rad2Deg):F1}°   |   F = 0 N";
+                telemetry.text = $"INDEPENDENT PREVIEW   |   x = {body.Cart.jointPosition[0]:F3} m   |   θ₁ = {Mathf.DeltaAngle(0, body.Links[0].jointPosition[0] * Mathf.Rad2Deg):F1}°   |   F = 0 N";
             }
             if (Time.unscaledTime >= nextPoll) { nextPoll = Time.unscaledTime + .5f; PollEvents(); }
         }
@@ -413,20 +413,20 @@ namespace StickBalancing
                     if (entry == null) continue;
                     if (entry.@event == "metrics")
                     {
-                        counter.text = entry.steps + " étapes";
+                        counter.text = entry.steps + " steps";
                         if (!entry.reward_available) continue;
                         rewards.Add(entry.reward);
                         if (rewards.Count > 300) rewards.RemoveAt(0);
                         rewardChart.MarkDirtyRepaint();
                         rewardRange.text = "Y : " + Mathf.Min(rewards.ToArray()).ToString("F3")
-                            + " à " + Mathf.Max(rewards.ToArray()).ToString("F3")
-                            + "   •   X : relevés successifs, jusqu'au pas " + entry.steps;
+                            + " to " + Mathf.Max(rewards.ToArray()).ToString("F3")
+                            + "   •   X: consecutive measurements, through step " + entry.steps;
                     }
                     if (entry.@event == "training" && appState == AppState.Starting)
                         SetState(AppState.Training);
                     if (entry.@event == "checkpoint")
                     {
-                        history.Add(Text("Checkpoint • " + entry.steps + " étapes", 12));
+                        history.Add(Text("Checkpoint • " + entry.steps + " steps", 12));
                         if (history.childCount > 20) history.RemoveAt(0);
                     }
                 }
@@ -463,7 +463,7 @@ namespace StickBalancing
             header.style.alignItems = Align.Center;
             header.style.marginBottom = 16;
             root.Add(header);
-            header.Add(Text("STICK BALANCING  /  LABORATOIRE", 18));
+            header.Add(Text("STICK BALANCING  /  LABORATORY", 18));
             var headerSpace = new VisualElement(); headerSpace.style.flexGrow = 1; header.Add(headerSpace);
             stateIndicator = new VisualElement();
             stateIndicator.style.width = stateIndicator.style.height = 16;
@@ -471,15 +471,15 @@ namespace StickBalancing
                 stateIndicator.style.borderBottomLeftRadius = stateIndicator.style.borderBottomRightRadius = 8;
             stateIndicator.style.marginLeft = 16;
             header.Add(stateIndicator);
-            stateLabel = Text("SYSTÈME PRÊT", 15);
+            stateLabel = Text("SYSTEM READY", 15);
             stateLabel.style.marginLeft = 8;
             header.Add(stateLabel);
             var help = new Button(() => {
-                detail.text = "1. Créez ou sélectionnez un projet. 2. Lancez le calcul. 3. Testez une sauvegarde en 3D ou mesurez 20 essais. L'aperçu central est une simulation indépendante à force nulle. F1 : aide · F5 : actualiser.";
-            }) { text = "Aide  F1" };
+                detail.text = "1. Create or select a project. 2. Start computing. 3. Test a checkpoint in 3D or measure 20 trials. The central preview is an independent zero-force simulation. F1: help · F5: refresh.";
+            }) { text = "Help  F1" };
             StyleButton(help); help.style.marginLeft = 16; header.Add(help);
             root.RegisterCallback<KeyDownEvent>(evt => {
-                if (evt.keyCode == KeyCode.F1) { detail.text = help.tooltip = "Sélectionner → Calculer → Tester. L'aperçu à force nulle est indépendant du calcul. Les essais 3D ouvrent une autre fenêtre."; evt.StopPropagation(); }
+                if (evt.keyCode == KeyCode.F1) { detail.text = help.tooltip = "Select → Compute → Test. The zero-force preview is independent of training. 3D tests open another window."; evt.StopPropagation(); }
                 if (evt.keyCode == KeyCode.F5 && ownedProcess == null) { RefreshExperiments(); evt.StopPropagation(); }
             });
 
@@ -492,35 +492,35 @@ namespace StickBalancing
             // Left panel — experiments
             var left = Panel(265);
             row.Add(left);
-            left.Add(Text("01  EXPLORATEUR DE PROJETS", 14));
+            left.Add(Text("01  PROJECT EXPLORER", 14));
             experiments = new ScrollView();
             experiments.style.height = 180;
             experiments.style.flexGrow = 1;
             experiments.style.minHeight = 140;
             left.Add(experiments);
-            AddButton(left, "Actualiser la liste", RefreshExperiments);
+            AddButton(left, "Refresh the list", RefreshExperiments);
             left.Add(Separator());
-            var creation = new Foldout { text = "Nouveau projet", value = false };
+            var creation = new Foldout { text = "New project", value = false };
             left.Add(creation);
             var form = new VisualElement();
             settings = form;
             creation.Add(form);
-            nameInput = new TextField("Nom") { value = "Mon pendule" };
+            nameInput = new TextField("Name") { value = "My pendulum" };
             form.Add(nameInput);
-            seedInput = new IntegerField("Graine") { value = 42 };
+            seedInput = new IntegerField("Seed") { value = 42 };
             form.Add(seedInput);
             segmentsChoice = new DropdownField("Segments", new List<string> { "1 segment", "2 segments", "3 segments (exp.)" }, 0);
             form.Add(segmentsChoice);
-            lengthInput = new FloatField("Longueur (m)") { value = 1 };
+            lengthInput = new FloatField("Length (m)") { value = 1 };
             form.Add(lengthInput);
-            forceInput = new FloatField("Force max. (N)") { value = 100 };
+            forceInput = new FloatField("Max. force (N)") { value = 100 };
             form.Add(forceInput);
-            AddButton(form, "Créer le projet", CreateExperiment);
-            nameInput.tooltip = "Nom affiché dans l'explorateur.";
-            seedInput.tooltip = "Entier positif ou nul pour reproduire les conditions initiales.";
-            lengthInput.tooltip = "Longueur de chaque segment, en mètres ; strictement positive.";
-            forceInput.tooltip = "Force maximale appliquée au chariot, en newtons.";
-            creation.tooltip = "Configurations indépendantes. Position initiale : pendule vers le bas.";
+            AddButton(form, "Create project", CreateExperiment);
+            nameInput.tooltip = "Name shown in the explorer.";
+            seedInput.tooltip = "Non-negative integer to reproduce initial conditions.";
+            lengthInput.tooltip = "Length of each segment in metres; strictly positive.";
+            forceInput.tooltip = "Maximum force applied to the cart, in newtons.";
+            creation.tooltip = "Independent configurations. Initial position: pendulum down.";
 
             // Centre panel — preview + graphs
             var centre = new VisualElement();
@@ -528,23 +528,23 @@ namespace StickBalancing
             centre.style.marginLeft = centre.style.marginRight = 10;
             centre.style.minWidth = 300;
             row.Add(centre);
-            centre.Add(Text("02  ZONE DE SIMULATION", 14));
-            projectTitle = Text("Sélectionnez un projet", 19);
+            centre.Add(Text("02  SIMULATION AREA", 14));
+            projectTitle = Text("Select a project", 19);
             centre.Add(projectTitle);
             segmentsLabel = Text("N = 1 segment", 13);
             segmentsLabel.style.color = new Color(.12f, .82f, .94f);
             centre.Add(segmentsLabel);
-            centre.Add(Text("Aperçu physique indépendant • force nulle • les essais 3D ouvrent une autre fenêtre", 12));
+            centre.Add(Text("Independent physics preview • zero force • 3D tests open another window", 12));
             var viewTools = new VisualElement(); viewTools.style.flexDirection = FlexDirection.Row; centre.Add(viewTools);
             void ViewTool(string caption, string hint, Action action) {
                 var b = new Button(action) { text = caption, tooltip = hint }; StyleButton(b);
                 b.style.flexGrow = 1; viewTools.Add(b);
             }
-            ViewTool("Grille", "Afficher ou masquer la grille métrique", () => showGrid = !showGrid);
-            ViewTool("−", "Réduire la vue", () => zoom = Mathf.Max(.5f, zoom / 1.2f));
-            ViewTool("+", "Agrandir la vue", () => zoom = Mathf.Min(2.5f, zoom * 1.2f));
-            ViewTool("Cadrer", "Revenir au cadrage initial", () => zoom = 1);
-            ViewTool("Réinitialiser", "Replacer uniquement l'aperçu en position basse", () => preview?.ResetPreview());
+            ViewTool("Grid", "Show or hide the metric grid", () => showGrid = !showGrid);
+            ViewTool("−", "Zoom out", () => zoom = Mathf.Max(.5f, zoom / 1.2f));
+            ViewTool("+", "Zoom in", () => zoom = Mathf.Min(2.5f, zoom * 1.2f));
+            ViewTool("Fit", "Restore the initial framing", () => zoom = 1);
+            ViewTool("Reset", "Reset only the preview to its downward position", () => preview?.ResetPreview());
             viewport = new VisualElement();
             viewport.style.flexGrow = 1;
             viewport.style.minHeight = 220;
@@ -558,7 +558,7 @@ namespace StickBalancing
                 viewport.style.borderLeftColor = viewport.style.borderRightColor = new Color(.18f, .27f, .35f);
             viewport.generateVisualContent += DrawViewport;
             centre.Add(viewport);
-            telemetry = Text("Initialisation de l'aperçu…", 11); centre.Add(telemetry);
+            telemetry = Text("Initializing the preview…", 11); centre.Add(telemetry);
 
             // Reward graph
             var rewardPanel = Panel(0);
@@ -566,58 +566,58 @@ namespace StickBalancing
             rewardPanel.style.paddingTop = rewardPanel.style.paddingBottom = 8;
             rewardPanel.style.marginBottom = 10;
             centre.Add(rewardPanel);
-            rewardPanel.Add(Text("INDICATEUR DE PROGRÈS", 13));
-            rewardRange = Text("Aucun épisode mesuré", 11);
+            rewardPanel.Add(Text("PROGRESS INDICATOR", 13));
+            rewardRange = Text("No measured episodes", 11);
             rewardPanel.Add(rewardRange);
             rewardChart = new VisualElement();
             rewardChart.style.flexGrow = 1;
             rewardChart.style.minHeight = 28;
             rewardChart.generateVisualContent += DrawRewardChart;
             rewardPanel.Add(rewardChart);
-            rewardPanel.Add(Text("Chaque point est une mesure interne. Il ne représente pas un taux de réussite.", 11));
+            rewardPanel.Add(Text("Each point is an internal measurement. It is not a success rate.", 11));
 
             // Success rate graph
             var successPanel = Panel(0);
             successPanel.style.height = 128;
             successPanel.style.paddingTop = successPanel.style.paddingBottom = 8;
             centre.Add(successPanel);
-            successPanel.Add(Text("TAUX DE RÉUSSITE (mesures figées)", 13));
-            successRange = Text("Aucune évaluation lancée", 11);
+            successPanel.Add(Text("SUCCESS RATE (frozen evaluations)", 13));
+            successRange = Text("No evaluation started", 11);
             successPanel.Add(successRange);
             successChart = new VisualElement();
             successChart.style.flexGrow = 1;
             successChart.style.minHeight = 28;
             successChart.generateVisualContent += DrawSuccessChart;
             successPanel.Add(successChart);
-            successPanel.Add(Text("Chaque point = une mesure de 20 essais, paramètres figés.", 11));
+            successPanel.Add(Text("Each point = 20 trials with frozen parameters.", 11));
 
             // Right panel — session controls
             var right = Panel(285);
             row.Add(right);
-            right.Add(Text("03  CONTRÔLE DE SESSION", 14));
-            counter = Text("0 étapes", 20);
+            right.Add(Text("03  SESSION CONTROL", 14));
+            counter = Text("0 steps", 20);
             right.Add(counter);
-            checkpointLabel = Text("Aucune expérience sélectionnée", 13);
+            checkpointLabel = Text("No experiment selected", 13);
             right.Add(checkpointLabel);
-            budgetInput = new IntegerField("Budget de calcul") { value = 2048 };
+            budgetInput = new IntegerField("Compute budget") { value = 2048 };
             right.Add(budgetInput);
-            right.Add(Text("2 048 : contrôle technique. Augmentez le budget pour une session longue.", 11));
-            AddButton(right, "Lancer / reprendre la session", StartTraining);
+            right.Add(Text("2,048: technical check. Increase the budget for a long session.", 11));
+            AddButton(right, "Start / resume session", StartTraining);
             idleButtons[idleButtons.Count - 1].AddToClassList("primary");
-            pauseButton = new Button(StopOwned) { text = "Pause et sauvegarde" };
+            pauseButton = new Button(StopOwned) { text = "Pause and save" };
             StyleButton(pauseButton);
             right.Add(pauseButton);
-            resetButton = new Button(() => SendCommand("reset")) { text = "Remettre en bas  •  test seulement" };
+            resetButton = new Button(() => SendCommand("reset")) { text = "Reset downward  •  test only" };
             StyleButton(resetButton);
             right.Add(resetButton);
             right.Add(Separator());
-            checkpointChoice = new DropdownField("Point de sauvegarde", new List<string> { "Dernier", "Initial", "Meilleur" }, 0);
+            checkpointChoice = new DropdownField("Checkpoint", new List<string> { "Latest", "Initial", "Best" }, 0);
             right.Add(checkpointChoice);
-            AddButton(right, "Tester la session  •  3D", () => Evaluate(SelectedCheckpoint, true));
-            AddButton(right, "Mesurer  •  20 essais figés", () => Evaluate(SelectedCheckpoint, false));
-            AddButton(right, "Référence  •  commande nulle", () => Evaluate("zero", false));
+            AddButton(right, "Test the session  •  3D", () => Evaluate(SelectedCheckpoint, true));
+            AddButton(right, "Measure  •  20 frozen trials", () => Evaluate(SelectedCheckpoint, false));
+            AddButton(right, "Reference  •  zero action", () => Evaluate("zero", false));
             right.Add(Separator());
-            detail = Text("Créez une expérience ou sélectionnez-en une dans la liste.", 12);
+            detail = Text("Create an experiment or select one in the list.", 12);
             right.Add(detail);
             history = new ScrollView();
             history.style.flexGrow = 1;
@@ -625,8 +625,8 @@ namespace StickBalancing
 
             // Footer
             var footer = Text(
-                "OBJECTIF  |  angle < 10°  •  vitesse < 0,5 rad/s  •  maintien 5 s  •  horizon 30 s" +
-                "     |     CALCUL LOCAL  •  sauvegardes : initiale / dernière / meilleure", 11);
+                "TARGET  |  angle < 10°  •  speed < 0.5 rad/s  •  hold 5 s  •  horizon 30 s" +
+                "     |     LOCAL COMPUTE  •  checkpoints: initial / latest / best", 11);
             footer.style.marginTop = 14;
             root.Add(footer);
 
@@ -706,12 +706,21 @@ namespace StickBalancing
 
         static void StyleButton(Button button)
         {
-            button.style.height = 32;
+            button.style.height = 36;
+            button.focusable = true;
+            button.RegisterCallback<FocusInEvent>(_ => {
+                button.style.borderTopColor = button.style.borderBottomColor =
+                    button.style.borderLeftColor = button.style.borderRightColor = new Color(.45f, .82f, 1f);
+            });
+            button.RegisterCallback<FocusOutEvent>(_ => {
+                button.style.borderTopColor = button.style.borderBottomColor =
+                    button.style.borderLeftColor = button.style.borderRightColor = StyleKeyword.Null;
+            });
             button.style.flexShrink = 0;
             button.style.marginBottom = 6;
             button.style.backgroundColor = StyleKeyword.Null;
             button.style.color = new Color(.9f, .97f, 1f);
-            button.style.fontSize = 12;
+            button.style.fontSize = 13;
             button.style.borderTopLeftRadius = button.style.borderTopRightRadius = 2;
             button.style.borderBottomLeftRadius = button.style.borderBottomRightRadius = 2;
             button.style.borderTopWidth = button.style.borderBottomWidth =
@@ -825,8 +834,8 @@ namespace StickBalancing
                 if (i == 0) p.MoveTo(pt); else p.LineTo(pt);
             }
             p.Stroke();
-            successRange.text = "Taux : " + (successRates[successRates.Count - 1] * 100).ToString("F0")
-                + " %   •   " + successRates.Count + " évaluation(s)   •   Ligne verte = objectif 90 %";
+            successRange.text = "Rate: " + (successRates[successRates.Count - 1] * 100).ToString("F0")
+                + " %   •   " + successRates.Count + " evaluation(s)   •   Green line = 90 % target";
         }
     }
 }
